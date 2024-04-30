@@ -25,9 +25,10 @@ Steps on how to create this simple app:
 
 8) Change manage.py to reflect both development and production environment.
 
-9)  At the prompt, type "python manage.py runserver 0.0.0.0:8000" or "python manage.py runserver localhost:8000". This would start development server on local machine at port 8000. YOU MAY HAVE TO CHANGE manage.py TO SWITCH BETWEEN DEVELOP./PROD.
+9)  At the prompt, type "python manage.py runserver 0.0.0.0:8010" or "python manage.py runserver localhost:8000". This would start development server on local machine at port 8010. YOU MAY HAVE TO CHANGE manage.py TO SWITCH BETWEEN DEVELOP./PROD. ALSO HAVE TO
+  CHANGE wsgi.py file.
  
-10) Go to web browser and type '127.0.0.1:8000'. You will see 'notes' welcome page. Congratulations!!!!!
+10) Go to web browser and type '127.0.0.1:8010'. You will see 'notes' welcome page. Congratulations!!!!!
 
 ##########################################
 
@@ -45,7 +46,108 @@ if not settings.DEBUG:
 
 ..\django_simple_with_staticCSS_on_DebianApache2\mysite> python manage.py collectstatic
 
-13) Now run 'python manage.py runserver 0.0.0.0:8000'  without the --insecure option.
+13) Now run 'python manage.py runserver 0.0.0.0:8010'  without the --insecure option.
 ################################################
 
 END: 'python -m pip freeze > requirements.txt'
+
+############################################################
+
+Now we set up apache2 on debian:
+1) "sudo apt install git"
+   
+2) admin@ip-172-31-32-82:~$ git clone https://github.com/ash322ash422/django_simple_with_staticCSS_on_DebianApache2
+  
+ and then rename dir. "django_simple_with_staticCSS_on_DebianApache2" to "django_simple_proj"
+
+2.1) Now we setup virtual envir:
+
+a) admin@ip-172-31-32-82:~$ /usr/bin/python3 -m venv .venv/django_simple_proj
+
+b) admin@ip-172-31-32-82:~$ source .venv/django_simple_proj/bin/activate
+
+c) (django_simple_proj) admin@ip-172-31-32-82:~/django_simple_proj$ ~/.venv/django_simple_proj/bin/pip install -r requirements.txt
+
+d) Now goto aws.amazon.com and click on the EC2 instance -> 'security' tab -> click on 'launch-wizard-1' link -> Edit Inbound Rules -> add inbound rule: Type='Custom TCP' with port='8010' 
+   and source='0.0.0.0/0'. 
+   
+   Also make sure that under settings.py, ALLOWED_HOST=['your_ip_address'] or ['*']
+
+e) Now run : 'python manage.py runserver 0.0.0.0:8010'
+
+(django_simple_proj) admin@ip-172-31-32-82:~/django_simple_proj/mysite$ python3 manage.py runserver 0.0.0.0:8010
+
+Now if u goto URL 'ip_address:8010', you should see your website.
+
+3) Make changes to ports.conf:
+(django_simple_proj) admin@ip-172-31-32-82:~$ cat /etc/apache2/ports.conf
+# If you just change the port or add more ports here, you will likely also
+# have to change the VirtualHost statement in
+# /etc/apache2/sites-enabled/000-default.conf
+
+#Following was disabled b/c I am running radhesh web site on port 80
+#Listen 80
+Listen 89
+
+Listen 8000
+
+#Following is for django_simple_proj
+Listen 8010
+
+<IfModule ssl_module>
+        Listen 443
+</IfModule>
+
+<IfModule mod_gnutls.c>
+        Listen 443
+</IfModule>
+(django_simple_proj) admin@ip-172-31-32-82:~$
+
+4) Now we changes 000-default.conf:
+
+The original file:
+5) admin@ip-172-31-32-82:~$ cat  /etc/apache2/sites-available/000-default.conf.orig
+<VirtualHost *:80>
+        # The ServerName directive sets the request scheme, hostname and port that
+        # the server uses to identify itself. This is used when creating
+        # redirection URLs. In the context of virtual hosts, the ServerName
+        # specifies what hostname must appear in the request's Host: header to
+        # match this virtual host. For the default virtual host (this file) this
+        # value is not decisive as it is used as a last resort host regardless.
+        # However, you must set it for any further virtual host explicitly.
+        #ServerName www.example.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/html
+
+        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+        # error, crit, alert, emerg.
+        # It is also possible to configure the loglevel for particular
+        # modules, e.g.
+        #LogLevel info ssl:warn
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        # For most configuration files from conf-available/, which are
+        # enabled or disabled at a global level, it is possible to
+        # include a line for only one particular virtual host. For example the
+        # following line enables the CGI configuration for this host only
+        # after it has been globally disabled with "a2disconf".
+        #Include conf-available/serve-cgi-bin.conf
+</VirtualHost>
+admin@ip-172-31-32-82:~$
+
+The new file:
+
+
+
+
+6) admin@ip-172-31-32-82:~$ chmod a+x -R django_simple_proj/
+   admin@ip-172-31-32-82:~$ chmod a+w -R django_simple_proj/
+
+7) Check apache2 configurations:
+   admin@ip-172-31-32-82:~$ sudo apache2ctl configtest
+
+8) admin@ip-172-31-32-82:~$ sudo systemctl restart apache2
+   admin@ip-172-31-32-82:~$ sudo systemctl status apache2
