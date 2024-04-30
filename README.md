@@ -30,7 +30,9 @@ Steps on how to create this simple app:
 10) Go to web browser and type '127.0.0.1:8000'. You will see 'notes' welcome page. Congratulations!!!!!
 
 ##########################################
+
 Now we take care of the problem where static CSS, js, img, etc are not being displayed because DEBUG=False during production:
+
 11) Now goto settings\{base.py,} and set "STATIC_ROOT = BASE_DIR / 'static_root'" and then goto mysite\urls.py and add
 
 if not settings.DEBUG:
@@ -44,4 +46,5 @@ if not settings.DEBUG:
 ..\django_simple_with_staticCSS_on_DebianApache2\mysite> python manage.py collectstatic
 
 ################################################
+
 END: 'python -m pip freeze > requirements.txt'
