@@ -53,8 +53,12 @@ END: 'python -m pip freeze > requirements.txt'
 
 ############################################################
 
-Now we set up apache2 on debian:
-1) "sudo apt install git"
+#############################################################
+
+#####################################################
+Now we set up apache2 on debian on EC2:
+
+1) admin@ip-172-31-32-82:~$ sudo apt install git
    
 2) admin@ip-172-31-32-82:~$ git clone https://github.com/ash322ash422/django_simple_with_staticCSS_on_DebianApache2
   
@@ -106,41 +110,49 @@ Listen 8010
 4) Now we changes 000-default.conf:
 
 The original file:
-5) admin@ip-172-31-32-82:~$ cat  /etc/apache2/sites-available/000-default.conf.orig
-<VirtualHost *:80>
-        # The ServerName directive sets the request scheme, hostname and port that
-        # the server uses to identify itself. This is used when creating
-        # redirection URLs. In the context of virtual hosts, the ServerName
-        # specifies what hostname must appear in the request's Host: header to
-        # match this virtual host. For the default virtual host (this file) this
-        # value is not decisive as it is used as a last resort host regardless.
-        # However, you must set it for any further virtual host explicitly.
-        #ServerName www.example.com
+5) Create a new file:
+ (django_simple_proj) admin@ip-172-31-32-82:~$ cat /etc/apache2/sites-available/django_simple_proj.conf                                                   <VirtualHost *:8010>
 
-        ServerAdmin webmaster@localhost
-        DocumentRoot /var/www/html
+        #ServerAdmin webmaster@localhost
+        #DocumentRoot /var/www/html
 
-        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
-        # error, crit, alert, emerg.
-        # It is also possible to configure the loglevel for particular
-        # modules, e.g.
-        #LogLevel info ssl:warn
 
         ErrorLog ${APACHE_LOG_DIR}/error.log
         CustomLog ${APACHE_LOG_DIR}/access.log combined
 
-        # For most configuration files from conf-available/, which are
-        # enabled or disabled at a global level, it is possible to
-        # include a line for only one particular virtual host. For example the
-        # following line enables the CGI configuration for this host only
-        # after it has been globally disabled with "a2disconf".
-        #Include conf-available/serve-cgi-bin.conf
+        Alias /static /home/admin/django_simple_proj/mysite/mysite/static_root
+        <Directory /home/admin/django_simple_proj/mysite/mysite/static_root>
+                Require all granted
+        </Directory>
+
+
+        <Directory  /home/admin/django_simple_proj/mysite/mysite>
+        <Files wsgi.py>
+                Require all granted
+        </Files>
+        </Directory>
+
+        WSGIDaemonProcess mysite python-home=/home/admin/.venv/django_simple_proj python-path=/home/admin/django_simple_proj/mysite
+        WSGIProcessGroup mysite
+        WSGIScriptAlias / /home/admin/django_simple_proj/mysite/mysite/wsgi.py
+
+
 </VirtualHost>
-admin@ip-172-31-32-82:~$
+(django_simple_proj) admin@ip-172-31-32-82:~$
 
-The new file:
+5.1) Enable the site by creating a link:
+(django_simple_proj) admin@ip-172-31-32-82:/etc/apache2/sites-enabled$ sudo ln -s ../sites-available//django_simple_proj.conf
+(django_simple_proj) admin@ip-172-31-32-82:/etc/apache2/sites-enabled$ ll
+total 0
+lrwxrwxrwx 1 root root 35 Apr 26 14:28 000-default.conf -> ../sites-available/000-default.conf
+lrwxrwxrwx 1 root root 43 Apr 30 11:45 django_simple_proj.conf -> ../sites-available//django_simple_proj.conf
+(django_simple_proj) admin@ip-172-31-32-82:/etc/apache2/sites-enabled$
 
+5.2) admin@ip-172-31-32-82:~$ sudo apache2ctl configtest
+     
+     admin@ip-172-31-32-82:~$ sudo systemctl restart apache2
 
+     admin@ip-172-31-32-82:~$ sudo systemctl status apache2
 
 
 6) admin@ip-172-31-32-82:~$ chmod a+x -R django_simple_proj/
@@ -151,3 +163,5 @@ The new file:
 
 8) admin@ip-172-31-32-82:~$ sudo systemctl restart apache2
    admin@ip-172-31-32-82:~$ sudo systemctl status apache2
+
+9) Now goto URL "http://ip_adress:8010/" or "ip_adress:8010". Congratulations.
