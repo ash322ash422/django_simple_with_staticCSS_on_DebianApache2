@@ -45,6 +45,7 @@ if not settings.DEBUG:
 
 ..\django_simple_with_staticCSS_on_DebianApache2\mysite> python manage.py collectstatic
 
+13) Now run 'python manage.py runserver 0.0.0.0:8000'  without the --insecure option.
 ################################################
 
 END: 'python -m pip freeze > requirements.txt'
