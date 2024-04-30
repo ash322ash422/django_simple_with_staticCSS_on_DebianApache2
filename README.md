@@ -1,0 +1,2 @@
+# django_simple_with_staticCSS_on_DebianApache2
+ 
