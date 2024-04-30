@@ -82,6 +82,10 @@ e) Now run : 'python manage.py runserver 0.0.0.0:8010'
 (django_simple_proj) admin@ip-172-31-32-82:~/django_simple_proj/mysite$ python3 manage.py runserver 0.0.0.0:8010
 
 Now if u goto URL 'ip_address:8010', you should see your website.
+ Congratulations upto here....
+
+##################
+Now comes the tricky part:
 
 3) Make changes to ports.conf:
 (django_simple_proj) admin@ip-172-31-32-82:~$ cat /etc/apache2/ports.conf
@@ -148,20 +152,21 @@ lrwxrwxrwx 1 root root 35 Apr 26 14:28 000-default.conf -> ../sites-available/00
 lrwxrwxrwx 1 root root 43 Apr 30 11:45 django_simple_proj.conf -> ../sites-available//django_simple_proj.conf
 (django_simple_proj) admin@ip-172-31-32-82:/etc/apache2/sites-enabled$
 
-5.2) admin@ip-172-31-32-82:~$ sudo apache2ctl configtest
-     
-     admin@ip-172-31-32-82:~$ sudo systemctl restart apache2
+(NOTE: To unlink use 'sudo unlink file_name.conf')
 
-     admin@ip-172-31-32-82:~$ sudo systemctl status apache2
+5.2) admin@ip-172-31-32-82:~$ sudo apache2ctl configtest
+
 
 
 6) admin@ip-172-31-32-82:~$ chmod a+x -R django_simple_proj/
    admin@ip-172-31-32-82:~$ chmod a+w -R django_simple_proj/
 
 7) Check apache2 configurations:
-   admin@ip-172-31-32-82:~$ sudo apache2ctl configtest
+ admin@ip-172-31-32-82:~$ sudo apache2ctl configtest
+     
+     admin@ip-172-31-32-82:~$ sudo systemctl restart apache2
 
-8) admin@ip-172-31-32-82:~$ sudo systemctl restart apache2
-   admin@ip-172-31-32-82:~$ sudo systemctl status apache2
+     admin@ip-172-31-32-82:~$ sudo systemctl status apache2
+
 
 9) Now goto URL "http://ip_adress:8010/" or "ip_adress:8010". Congratulations.
